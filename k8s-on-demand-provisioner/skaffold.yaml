@@ -1,0 +1,28 @@
+apiVersion: skaffold/v2beta21
+kind: Config
+metadata:
+  name: k8s-on-demand-provisioner
+profiles:
+  - name: dev
+    build:
+      tagPolicy:
+        gitCommit:
+          variant: TreeSha
+      artifacts:
+        - image: robocorp/k8s-on-demand-provisioner
+          docker:
+            dockerfile: Dockerfile.dev
+          # enable local machine <=> pod code synchronization (DEV env var must be true)
+          sync:
+            infer:
+              - src/**/*.ts
+    deploy:
+      # deployment is handled by helm
+      helm:
+        releases:
+          - name: k8s-on-demand-provisioner
+            chartPath: chart
+            artifactOverrides:
+              image: robocorp/k8s-on-demand-provisioner
+            imageStrategy:
+              helm: {}

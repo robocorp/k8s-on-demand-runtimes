@@ -1,0 +1,15 @@
+baseUrl: "ondemand-kube-demo.robocloud.me"
+image:
+  repository: "robocorp/k8s-on-demand-provisioner"
+  tag: latest
+  pullPolicy: IfNotPresent
+#  pullSecrets: 
+#  - name: acr-secret
+
+robocontainer:
+  repository: "robocorp/robocontainer"
+
+ingress: 
+  enabled: true
+  tls: true
+
