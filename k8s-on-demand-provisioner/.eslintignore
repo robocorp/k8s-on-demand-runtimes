@@ -1,0 +1,6 @@
+.serverless/
+.webpack/
+coverage/
+dist/
+lib/
+node_modules/

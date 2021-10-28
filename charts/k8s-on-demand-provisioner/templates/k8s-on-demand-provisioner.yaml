@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rc-k8s-on-demand-runtimes
+  name: k8s-on-demand-provisioner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rc-k8s-on-demand-runtimes
+  template:
+    metadata:
+      labels:
+        app: rc-k8s-on-demand-runtimes
+    spec:
+      containers:
+        - env:
+            - name: BASE_URL
+              value: {{ .Values.baseUrl }}
+            - name: KUBERNETES_RUNTIME_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: ROBOCONTAINER_REPOSITORY
+              value: {{ .Values.robocontainer.repository }}
+            - name: ROBOCONTAINER_TAG
+              value: {{ .Values.robocontainer.tag }}
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 60
+            failureThreshold: 3
+          image:  {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: k8s-on-demand-provisioner
+          ports:
+            - containerPort: 3000
+            - containerPort: 3001
+          resources: {}
+      restartPolicy: Always
+      serviceAccountName: k8s-on-demand-provisioner
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rc-k8s-on-demand-runtimes
+  name: k8s-on-demand-provisioner
+spec:
+  ports:
+    - name: "http"
+      port: 3000
+      targetPort: 3000
+    - name: "admin-http"
+      port: 3001
+      targetPort: 3001
+  selector:
+    app: rc-k8s-on-demand-runtimes
+status:
+  loadBalancer: {}

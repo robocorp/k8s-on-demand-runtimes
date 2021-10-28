@@ -1,0 +1,33 @@
+apiVersion: skaffold/v2beta21
+kind: Config
+metadata:
+  name: k8s-on-demand-provisioner
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: robocorp/k8s-on-demand-provisioner
+      docker:
+        dockerfile: Dockerfile.prod
+deploy:
+  helm:
+    releases:
+      - name: k8s-on-demand-provisioner
+        chartPath: ../charts/k8s-on-demand-provisioner
+        artifactOverrides:
+          image: robocorp/k8s-on-demand-provisioner
+        imageStrategy:
+          helm: {}
+profiles:
+  - name: dev
+    build:
+      tagPolicy:
+        sha256: {}
+      artifacts:
+        - image: robocorp/k8s-on-demand-provisioner
+          docker:
+            dockerfile: Dockerfile.dev
+          # enable local machine <=> pod code synchronization (DEV env var must be true)
+          sync:
+            infer:
+              - src/**/*.ts

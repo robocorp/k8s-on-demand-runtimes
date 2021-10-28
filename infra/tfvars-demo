@@ -1,0 +1,12 @@
+deployment_name = "demo"
+location = "westeurope"
+acr_name = "ondemandk8sdemo"
+aks_vm_size = "Standard_D2s_v3"
+aks_availability_zones = ["1"]
+aks_default_node_count = 1
+kubernetes_version = "1.21.2"
+dns = {
+  zone = "robocloud.me"
+  a_record = "ondemand-kube-demo"
+}
+cluster_issuer_email = "user@example.com"

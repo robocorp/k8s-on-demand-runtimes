@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding binds "job-manager" role to the runtime manager service
+# account
+kind: RoleBinding
+metadata:
+  name: k8s-on-demand-provisioner-manage-jobs
+subjects:
+- kind: ServiceAccount
+  name: k8s-on-demand-provisioner
+roleRef:
+  kind: Role
+  name: job-manager
+  apiGroup: rbac.authorization.k8s.io

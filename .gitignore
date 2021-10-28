@@ -1,0 +1,11 @@
+node_modules
+coverage
+/lib
+.DS_Store
+.webpack/
+.idea
+**/lib
+lib
+.webpack
+webpack
+dist
