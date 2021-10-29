@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - restructuring
+      - master
 
 jobs:
   release:
