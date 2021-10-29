@@ -74,7 +74,7 @@ class ConsoleLogProxy implements Logger {
 
   fatal(...args) {
     if (this.cfg.logLevel <= LogLevel.FATAL) {
-      console.error(`[${this.cfg.name}]`, 'FATAL', ...args);
+      console.error(`[${this.cfg.name}]`, "FATAL", ...args);
     }
   }
 

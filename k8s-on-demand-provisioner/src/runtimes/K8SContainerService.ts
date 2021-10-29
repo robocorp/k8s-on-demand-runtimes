@@ -1,27 +1,24 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable no-return-await */
-import { BatchV1Api, KubeConfig } from '@kubernetes/client-node';
-import { Logger } from '../logging';
-import { ContainerService, StartContainerInput } from './ContainerService';
-import { NoopLogger } from '../logging';
+import { BatchV1Api, KubeConfig } from "@kubernetes/client-node";
+import { Logger } from "../logging";
+import { ContainerService, StartContainerInput } from "./ContainerService";
+import { NoopLogger } from "../logging";
 
 interface K8SContainerServiceConfig {
   runtimeNamespace?: string;
   logger?: Logger;
 }
 
-
 /**
  * Function that can be used to construct uniform logical identifiers
  * for the runtime containers. Should uniquely identify a container.
- * 
+ *
  * There are both syntax and length (<= 63 chars) requirements from Kubernetes.
  * Basically this needs to be a valid DNS name.
  */
- export const buildContainerLogicalId = (
-  rt: string,
-) => `runtime-${rt}`;
+export const buildContainerLogicalId = (rt: string) => `runtime-${rt}`;
 
 /**
  * Manages runtime containers on a Kubernetes cluster.
@@ -33,12 +30,12 @@ export class K8SContainerService implements ContainerService {
   private runtimeNamespace: string;
 
   constructor(private cfg: K8SContainerServiceConfig) {
-    this.logger = cfg.logger
-      ?? NoopLogger;
+    this.logger = cfg.logger ?? NoopLogger;
 
-    this.runtimeNamespace = cfg.runtimeNamespace
-      ?? process.env.KUBERNETES_RUNTIME_NAMESPACE
-      ?? 'default';
+    this.runtimeNamespace =
+      cfg.runtimeNamespace ??
+      process.env.KUBERNETES_RUNTIME_NAMESPACE ??
+      "default";
 
     this.kubernetesConfig = new KubeConfig();
 
@@ -49,15 +46,16 @@ export class K8SContainerService implements ContainerService {
     // This works when this program is running within Kubernetes.
     this.kubernetesConfig.loadFromCluster();
 
-    this.kubernetesBatchClient = this.kubernetesConfig.makeApiClient(BatchV1Api);
+    this.kubernetesBatchClient =
+      this.kubernetesConfig.makeApiClient(BatchV1Api);
   }
 
   async startContainer(params: StartContainerInput): Promise<string> {
     const runtimeLogicalId = buildContainerLogicalId(params.runtimeId);
-    
-    const image = params.imageUri.endsWith(':latest')
-      ? params.imageUri :
-      `${params.imageUri}:latest`;
+
+    const image = params.imageUri.endsWith(":latest")
+      ? params.imageUri
+      : `${params.imageUri}:latest`;
 
     // this.logger.info('Starting task with params:', JSON.stringify(request));
     const jobPostResult = await this.kubernetesBatchClient.createNamespacedJob(
@@ -99,11 +97,11 @@ export class K8SContainerService implements ContainerService {
                   },
                   env: [
                     {
-                      name: 'RC_WORKER_NAME',
+                      name: "RC_WORKER_NAME",
                       value: runtimeLogicalId,
                     },
                     {
-                      name: 'RC_WORKER_LINK_TOKEN',
+                      name: "RC_WORKER_LINK_TOKEN",
                       value: params.runtimeLinkToken,
                     },
                     // NOT IN USE currently for k8s runtimes
@@ -112,7 +110,7 @@ export class K8SContainerService implements ContainerService {
                     //   value: params.condaYmlEndpoint,
                     // },
                     {
-                      name: 'ROBOCORP_HOME',
+                      name: "ROBOCORP_HOME",
                       value: process.env.WORKER_HOME_FOLDER,
                     },
                     // This controls the RC agent termination after the activity
@@ -122,14 +120,15 @@ export class K8SContainerService implements ContainerService {
                     // don't terminate gracefully and this blocks execution of
                     // new ECS tasks on the same ECS agent.
                     {
-                      name: 'RC_AGENT_TERMINATE_AFTER_RUN_MS',
-                      value: process.env.RC_AGENT_TERMINATE_AFTER_RUN_MS || '5000',
+                      name: "RC_AGENT_TERMINATE_AFTER_RUN_MS",
+                      value:
+                        process.env.RC_AGENT_TERMINATE_AFTER_RUN_MS || "5000",
                     },
                   ],
-                }
+                },
               ],
-              restartPolicy: 'Never',
-            }
+              restartPolicy: "Never",
+            },
           },
           // Schedule kubernetes to kill the job pods if the runtime is active
           // for more than 24 hrs and 1 minute. The max running time for a run
@@ -153,7 +152,7 @@ export class K8SContainerService implements ContainerService {
           //    has been used -> any rebooted container will fail
           backoffLimit: 0,
         },
-      },
+      }
     );
 
     // the k8s client already throws if result is an error response
@@ -162,10 +161,11 @@ export class K8SContainerService implements ContainerService {
   }
 
   // XXX workspaceId is not used
-  async stopContainerByRuntimeId(workspaceId: string, runtimeId: string): Promise<string> {
-    const runtimeLogicalId = buildContainerLogicalId(
-      runtimeId,
-    );
+  async stopContainerByRuntimeId(
+    workspaceId: string,
+    runtimeId: string
+  ): Promise<string> {
+    const runtimeLogicalId = buildContainerLogicalId(runtimeId);
 
     // TODO: check if the request was successful
     return runtimeLogicalId;
@@ -173,16 +173,14 @@ export class K8SContainerService implements ContainerService {
 
   // XXX workspaceId is not used
   async getContainerIdByRuntimeId(workspaceId: string, runtimeId: string) {
-    const runtimeLogicalId = buildContainerLogicalId(
-      runtimeId,
-    );
+    const runtimeLogicalId = buildContainerLogicalId(runtimeId);
 
     return runtimeLogicalId;
   }
 
   async isContainerTerminated(runtimeLogicalId: string): Promise<boolean> {
     // we probably do not need this for k8s since timeouts are managed by
-    // kubernetes 
-    throw new Error('Not implemented');
+    // kubernetes
+    throw new Error("Not implemented");
   }
 }

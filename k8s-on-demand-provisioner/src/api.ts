@@ -1,6 +1,6 @@
 export enum onDemandRuntimeRequestType {
-  START = 'start',
-  STATUS = 'status',
+  START = "start",
+  STATUS = "status",
 }
 export interface onDemandRuntimeRequestStart {
   type: onDemandRuntimeRequestType.START;
@@ -18,4 +18,6 @@ export interface onDemandRuntimeRequestStatusResponse {
   status: string;
 }
 
-export type onDemandRuntimeRequest = onDemandRuntimeRequestStart | onDemandRuntimeRequestStatus;
+export type onDemandRuntimeRequest =
+  | onDemandRuntimeRequestStart
+  | onDemandRuntimeRequestStatus;

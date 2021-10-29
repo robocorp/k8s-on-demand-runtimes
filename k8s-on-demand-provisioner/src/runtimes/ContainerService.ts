@@ -13,10 +13,10 @@ export interface ContainerService {
   /**
    * Starts up a new container. Returns a unique resource identifier
    * related to that particular running container.
-   * @param params 
+   * @param params
    */
   startContainer(params: StartContainerInput): Promise<string>;
-  
+
   /**
    * Stops the container running the specified runtime. Returns the identifier
    * of the stopped container.
@@ -24,9 +24,11 @@ export interface ContainerService {
    * @param runtimeId Runtime id
    */
   // XXX workspaceId is not used
-  stopContainerByRuntimeId(workspaceId: string, runtimeId: string): Promise<string>;
+  stopContainerByRuntimeId(
+    workspaceId: string,
+    runtimeId: string
+  ): Promise<string>;
 
-  
   /**
    * Resolves the container running the specified runtime. Returns the
    * identifier of the stopped container.
@@ -35,7 +37,6 @@ export interface ContainerService {
    */
   // XXX workspaceId is not used
   getContainerIdByRuntimeId(workspaceId: string, runtimeId: string);
-
 
   /**
    * Checks if the specified container has been terminated.
