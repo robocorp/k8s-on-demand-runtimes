@@ -3,9 +3,9 @@ name: Release Charts
 on:
   push:
     branches:
-      - main
+      - restructuring
 
-jobs:
+  jobs:
   release:
     runs-on: ubuntu-latest
     steps:
