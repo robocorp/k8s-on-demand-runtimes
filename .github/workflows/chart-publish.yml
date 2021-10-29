@@ -5,7 +5,7 @@ on:
     branches:
       - restructuring
 
-  jobs:
+jobs:
   release:
     runs-on: ubuntu-latest
     steps:
