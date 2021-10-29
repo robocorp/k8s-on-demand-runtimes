@@ -51,7 +51,7 @@ app.post('/hook', hmac, async (req, res) => {
         console.log('failed to create runtime');
         console.log(e);
         res.send(500);
-      };
+      }
       break;
 
     case onDemandRuntimeRequestType.STATUS:

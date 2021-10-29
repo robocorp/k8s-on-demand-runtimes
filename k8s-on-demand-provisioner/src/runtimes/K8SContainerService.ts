@@ -167,9 +167,6 @@ export class K8SContainerService implements ContainerService {
       runtimeId,
     );
 
-    const deleteJobResult = await this.kubernetesBatchClient
-      .deleteNamespacedJob(runtimeLogicalId, this.cfg.runtimeNamespace);
-
     // TODO: check if the request was successful
     return runtimeLogicalId;
   }
@@ -180,8 +177,6 @@ export class K8SContainerService implements ContainerService {
       runtimeId,
     );
 
-    const readJobResult = await this.kubernetesBatchClient
-      .readNamespacedJob(runtimeLogicalId, this.cfg.runtimeNamespace);
     return runtimeLogicalId;
   }
 

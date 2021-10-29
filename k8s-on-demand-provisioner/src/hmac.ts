@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { RequestHandler, Request } from 'express';
+import { RequestHandler } from 'express';
 import { IncomingMessage, ServerResponse, IncomingHttpHeaders } from 'http';
 
 const TIMESTAMP_EXPIRATION_TIME = 60 * 15;

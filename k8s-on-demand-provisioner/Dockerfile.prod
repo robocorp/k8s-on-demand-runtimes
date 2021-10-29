@@ -9,4 +9,4 @@ RUN npm i -g ts-node-dev
 COPY . /app/
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "lib/index.js"]
