@@ -1,5 +1,6 @@
 deployment_name = "demo"
 location = "westeurope"
+acr_name = "ondemandk8sdemo"
 aks_vm_size = "Standard_D2s_v3"
 aks_availability_zones = ["1"]
 aks_default_node_count = 1

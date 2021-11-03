@@ -4,9 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
-RUN npm i -g ts-node-dev
-
 COPY . /app/
+RUN npm run build
+
 EXPOSE 8080
 
 CMD ["node", "lib/index.js"]

@@ -1,44 +1,80 @@
-# K8S On-Demand Runtimes 
+# K8S On-Demand Runtimes
 
-This repository contains an example implementation of Robocorp On-Demand Runtimes using
-a Kubernetes cluster for provisioning the runtimes. This allows for running robots
-on customer-hosted infrastructure.
+This repository contains an example implementation of Robocorp On-Demand
+Runtimes using a Kubernetes cluster for provisioning the runtimes. This allows
+for running robots on customer-hosted infrastructure.
 
-A Detailed description of how the On-Demand Runtime feature works can be found [Here](example.com).
+The kubernetes cluster exposes a webhook to the internet. When a process Step
+is configured in the Robocorp Control Room to use an On-Demand Runtime for
+running the step, Control Room will call this webhook over the public internet.
+This call triggers the on-demand provisioner to spin up a new container on the
+cluster using Kubernetes Jobs. The container is a roboworker that will
+immediately link itself to the Robocorp Control Room. Control room will then
+assign the step run to be ran on it. After the step run is done, the container
+shuts down and the link is removed.
+
+The webhook call from control room to the cluster is authenticated with an HMAC
+that uses a shared secret. The communication between the robocontainer and
+Control Room is also encrypted.
 
 ## Repository contents
 
 ### Infra
 
-[Infra](infra/) folder contains an example Terraform project that can be used to generate
-the required infrastructure for running On-Demand Runtimes on Azure.
+[Infra](infra/) folder contains an example Terraform project that can be used to
+generate the required infrastructure for running On-Demand Runtimes on Azure.
 
 ### K8S On-Demand Provisioner
 
-[k8s-on-demand-provisioner](k8s-on-demand-provisioner/) folder contains the sources for
-a Kubernetes microservice that listens for calls from Robocorp Control Room to start a new runtime.
+[k8s-on-demand-provisioner](k8s-on-demand-provisioner/) folder contains the
+sources for a Kubernetes microservice that listens for POST requests from the
+Robocorp Control Room to start a new runtime. It verifies the authenticity of
+the request using HMAC and a shared secret. After verification, the service
+starts the runtime using Kubernetes Jobs.
 
-A pre-built image can be found on (Docker Hub)[https://hub.docker.com/r/robocorp/k8s-on-demand-provisioner]
+A pre-built image of the provisioner can be found on
+[Docker hub](https://hub.docker.com/r/robocorp/k8s-on-demand-provisioner)
 
-### Chart
-[charts/k8s-on-demand-provisioner/](charts/k8s-on-demand-provisioner/) folder contains the Helm
-chart that can be used to deploy the On-demand provisioner and the required service accounts and
-roles required by the provisioner.
+### Helm Chart
 
-This repository uses a Github Workflow action to publish the repository on the Github Pages of this repository.
-Example of how to use this can be found [below](#simple-install-on-existing-cluster-using-helm)
+[charts/k8s-on-demand-provisioner/](charts/k8s-on-demand-provisioner/) folder
+contains the Helm chart that can be used to deploy the On-demand provisioner and
+the required service accounts and roles required by the provisioner.
+
+The Chart configures an ingress rule that exposes the webhook implemented
+by the k8s-on-demand-provisioner to the external network that Control Room will
+use to start new runtimes.
+
+The shared secret used for the authentication the webhook requests is generated
+by the Helm chart on first install. The secret is stored in a kubernetes secret
+named `api-secret`
+
+This repository uses a Github Workflow action to publish the Helm chart on the
+Github Pages of this repository. Example of how to use this can be found
+[below](#simple-install-on-existing-cluster-using-helm)
+
+The Helm chart [default values](charts/k8s-on-demand-provisioner/values.yaml)
+are designed to work with the infrastructure as configured by the Terraform
+example in the Infra folder. Some values, especially ingress rule configuration,
+may need to be adjusted for different clusters.
 
 ### Robocontainer
 
-The container that runs the robots is pulled from dockerhub https://hub.docker.com/r/robocorp/robocontainer
+The container that runs the robots is pulled from dockerhub
+https://hub.docker.com/r/robocorp/robocontainer
+
+In future the sources for the container will also be found in this repository
 
 ## Getting started
 
 ### Installation
 
+Installation may be done on an pre-existing cluster or new cluster can be
+initialized using the infra example provided.
+
 #### Simple install on existing cluster using Helm
 
-[Helm](https://helm.sh) must be installed to use the charts.  Please refer to
+[Helm](https://helm.sh) must be installed to use the charts. Please refer to
 Helm's [documentation](https://helm.sh/docs) to get started.
 
 Once Helm has been set up correctly, add the repo as follows:
@@ -46,8 +82,8 @@ Once Helm has been set up correctly, add the repo as follows:
     helm repo add k8s-on-demand-runtimes https://robocorp.github.io/k8s-on-demand-runtimes/
 
 If you had already added this repo earlier, run `helm repo update` to retrieve
-the latest versions of the packages.  You can then run `helm search repo
-<alias>` to see the charts.
+the latest versions of the packages. You can then run `helm search repo <alias>`
+to see the charts.
 
 To install the <chart-name> chart:
 
@@ -55,11 +91,36 @@ To install the <chart-name> chart:
 
 To uninstall the chart:
 
-    helm delete my-k8s-on-demand-provisioner 
+    helm delete my-k8s-on-demand-provisioner
 
-#### Setting up a cluster on Azure, inst
+Some of the helm chart parameters may need to be changed to fit the cluster
+being used.
 
-TODO
+#### Setting up a cluster on Azure, building and installing the provisioner
 
+Start by initializing the Azure infrastrucure as described in
+[README](infra/README.md) file in the infra folder.
+
+In `k8s-on-demand-provisioner`
 
 ### Configuring Control Room
+
+On Demand Runtimes are only available for use if the organization has a subscription
+plan that includes Environment Groups. If Environment Groups are not available,
+the On Demand runtimes are not available for use either.
+
+Communication between control room and cluster is authenenticated using HMAC and
+a shared secret. The secret is generated by the Helm chart and is stored in a
+kubernetes secret called `api-secret`. The secret can be read using the 
+following command as an example:
+
+    kubectl get secret api-secret -o jsonpath='{.data.secret}' | base64 --decode
+
+The Webook URL is also needed. With the examples provided in this repository, it
+will be something along the lines of `http://<ingress_ip>/hook` or
+`https://<a_record>.<zone>/hook`.
+
+In Robocorp Control Room, enter the "Environments" Tab of the workspace where the
+on-demand runtimes are required. Add a new On Demand Runtime with a descriptive name,
+the hook URL and the secret.
+

@@ -1,7 +1,3 @@
-provider "azurerm" {
-  features {}
-}
-
 provider "kubernetes" {
   host                   = module.aks.endpoint
   client_key             = base64decode(module.aks.client_key)
@@ -38,7 +34,7 @@ module "aks" {
 
 module "acr" {
   source = "./modules/acr"
-  name = "ondemandk8s${var.deployment_name}"
+  name = var.acr_name
   rg_name = azurerm_resource_group.deployment.name
   location = coalesce(var.acr_location, var.location)
   cluster_principal_id = module.aks.cluster_principal_id

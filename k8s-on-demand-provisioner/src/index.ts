@@ -2,7 +2,7 @@
 import express from "express";
 import helmet from "helmet";
 
-import { containerService, hmac, log, errorHandler } from "./utils";
+import { containerService, hmac, log, errorHandler, buildImageUri } from "./utils";
 import {
   onDemandRuntimeRequest,
   onDemandRuntimeRequestType,
@@ -17,6 +17,9 @@ const port = process.env.EXPRESS_PORT ? process.env.EXPRESS_PORT : 3000;
 const port_admin = process.env.EXPRESS_PORT_ADMIN
   ? process.env.EXPRESS_PORT_ADMIN
   : 3001;
+
+
+
 
 app.use(helmet());
 app.use(
@@ -46,7 +49,7 @@ app.post("/hook", hmac, async (req, res) => {
       log.info(`Creating runtime ${request.runtimeId}`);
       try {
         const result = await containerService.startContainer({
-          imageUri: "robocorp/robocontainer",
+          imageUri: buildImageUri(),
           ...request,
         });
         log.debug(result);

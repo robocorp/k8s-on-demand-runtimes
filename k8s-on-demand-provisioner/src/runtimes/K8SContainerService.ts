@@ -53,9 +53,7 @@ export class K8SContainerService implements ContainerService {
   async startContainer(params: StartContainerInput): Promise<string> {
     const runtimeLogicalId = buildContainerLogicalId(params.runtimeId);
 
-    const image = params.imageUri.endsWith(":latest")
-      ? params.imageUri
-      : `${params.imageUri}:latest`;
+    const image = params.imageUri;
 
     // this.logger.info('Starting task with params:', JSON.stringify(request));
     const jobPostResult = await this.kubernetesBatchClient.createNamespacedJob(

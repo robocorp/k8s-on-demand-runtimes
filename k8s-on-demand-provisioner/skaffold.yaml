@@ -14,7 +14,7 @@ deploy:
   helm:
     releases:
       - name: k8s-on-demand-provisioner
-        chartPath: ../chart
+        chartPath: ../charts/k8s-on-demand-provisioner
         artifactOverrides:
           image: robocorp/k8s-on-demand-provisioner
         imageStrategy:

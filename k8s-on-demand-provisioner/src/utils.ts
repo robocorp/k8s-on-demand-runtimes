@@ -28,3 +28,10 @@ export const errorHandler: ErrorRequestHandler = (error, _1, res, _2) => {
   console.error(error);
   return res.status(500).send("unknown error");
 };
+
+export const buildImageUri = () => {
+  const repository = process.env.ROBOCONTAINER_REPOSITORY;
+  const tag = process.env.ROBOCONTAINER_TAG || 'latest';
+
+  return `${repository}:${tag}`;
+};

@@ -22,6 +22,8 @@ spec:
               value: {{ .Release.Namespace }}
             - name: ROBOCONTAINER_REPOSITORY
               value: {{ .Values.robocontainer.repository }}
+            - name: ROBOCONTAINER_TAG
+              value: {{ .Values.robocontainer.tag }}
             - name: API_SECRET
               valueFrom:
                 secretKeyRef:

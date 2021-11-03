@@ -13,6 +13,10 @@ variable "aks_location" {
   default = null
 }
 
+variable "acr_name" {
+  type = string
+}
+
 variable "aks_vm_size" {
   type = string
 }

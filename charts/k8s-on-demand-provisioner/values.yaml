@@ -1,4 +1,5 @@
 baseUrl: "ondemand-kube-demo.robocloud.me"
+
 image:
   repository: "robocorp/k8s-on-demand-provisioner"
   tag: latest
@@ -8,8 +9,17 @@ image:
 
 robocontainer:
   repository: "robocorp/robocontainer"
+  tag: latest
 
-ingress: 
+ingress:
   enabled: true
-  tls: true
+  className: ""
+  annotations:
+     kubernetes.io/ingress.class: nginx
+     cert-manager.io/cluster-issuer: "cert-manager-global"
+     kubernetes.io/ingress.allow-http: "false"
+  tls:
+    - secretName: k8s-on-demand-provisioner-tls
+      hosts:
+        - ondemand-kube-demo.robocloud.me
 
